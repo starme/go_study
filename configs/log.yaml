@@ -1,0 +1,19 @@
+logging:
+  default: console
+  channels:
+    file:
+      driver: daily
+      path: runtime/logs/app.log
+      level: debug
+      days: 14
+      formatter: json
+      format:
+        mod: production
+        time_encoder: "[2006-01-02 15:04:05]"
+    console:
+      driver: console
+      level: debug
+      formatter: console
+      format:
+        mod: development
+        time_encoder: "[2006-01-02 15:04:05]"

@@ -1,0 +1,8 @@
+{"level":"info","ts":"[2023-06-30 10:09:07]","caller":"cmd/test.go:48","msg":"test"}
+{"level":"info","ts":"[2023-06-30 10:09:43]","caller":"cmd/test.go:48","msg":"test"}
+{"level":"info","ts":"[2023-06-30 10:10:07]","caller":"cmd/test.go:48","msg":"test"}
+{"level":"info","ts":"[2023-06-30 10:18:49]","caller":"cmd/test.go:48","msg":"test"}
+{"level":"info","ts":"[2023-06-30 10:21:00]","caller":"cmd/test.go:51","msg":"test"}
+{"level":"info","ts":"[2023-06-30 10:25:25]","caller":"cmd/test.go:51","msg":"test"}
+{"level":"info","ts":"[2023-06-30 10:25:31]","caller":"cmd/test.go:51","msg":"test"}
+{"level":"info","ts":"[2023-06-30 10:26:23]","caller":"cmd/test.go:51","msg":"test"}
