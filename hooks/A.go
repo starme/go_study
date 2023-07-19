@@ -2,40 +2,45 @@ package hooks
 
 import (
 	"context"
-	"github.com/hibiken/asynq"
+	"fmt"
+	"go.uber.org/zap"
 	"star/pkg/log"
-	"star/pkg/queue"
 )
 
-type AHook struct {
-	Name string
-	Age  int
+type TEvent struct{}
+
+func (e TEvent) Name() string {
+	return "TEvent"
 }
 
-var ATask = &queue.Task{
-	Name: "A",
-	Payload: &AHook{
-		Name: "aaaa",
-		Age:  20,
-	},
-	Handler: func(ctx context.Context, task *asynq.Task) error {
-		log.Info("xxxxxxxxxxxxaaaaaaaaaa")
-		return nil
-	},
+type TListener struct{}
+
+func (l TListener) Handler(_ context.Context, event interface{}) error {
+	fmt.Printf("event: %#v\n", event)
+	log.Info("Handler: ", zap.Any("event", event))
+	return nil
 }
 
-var ATaskOptions = []asynq.Option{
-	asynq.MaxRetry(3),
+type AListener struct{}
+
+func (s AListener) Handler(_ context.Context, event interface{}) error {
+	fmt.Printf("event: %#v\n", event)
+	log.Info("Handler: ", zap.Any("event", event))
+	return nil
 }
 
-func (h *AHook) GetName() string {
-	return h.Name
+type VListener struct{}
+
+func (s VListener) Handler(_ context.Context, event interface{}) error {
+	fmt.Printf("event: %#v\n", event)
+	log.Info("Handler: ", zap.Any("event", event))
+	return nil
 }
 
-func (h *AHook) GetAge() int {
-	return h.Age
-}
+type SListener struct{}
 
-func (h *AHook) Middleware() []string {
-	return []string{"A", "B"}
+func (s SListener) Handler(_ context.Context, event interface{}) error {
+	fmt.Printf("event: %#v\n", event)
+	log.Info("Handler: ", zap.Any("event", event))
+	return nil
 }

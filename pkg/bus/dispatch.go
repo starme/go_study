@@ -1,61 +1,84 @@
 package bus
 
-import "sync"
+import (
+	"fmt"
+)
 
-var bus *Bus
+type OptionType int
 
-type Bus struct {
-	mux         *sync.Mutex
-	subscribers map[string][]IListener
+const (
+	ExecOpt OptionType = iota
+)
+
+const (
+	// Default exec type is serial.
+	defaultExecType = "serial"
+)
+
+type Option interface {
+	// String returns a string representation of the option.
+	String() string
+
+	// Type describes the type of the option.
+	Type() OptionType
+
+	// Value returns a value used to create this option.
+	Value() interface{}
 }
 
-func NewBus() *Bus {
-	return &Bus{
-		mux:         &sync.Mutex{},
-		subscribers: make(map[string][]IListener),
+type (
+	execOption string
+)
+
+// SerialExec is a option to execute event handler synchronously.
+func SerialExec() Option {
+	return execOption("serial")
+}
+
+// ParallelExec AsyncExec is a option to execute event handler asynchronously.
+func ParallelExec() Option {
+	return execOption("parallel")
+}
+
+func (e execOption) String() string     { return fmt.Sprintf("execOption(%s)", e) }
+func (e execOption) Type() OptionType   { return ExecOpt }
+func (e execOption) Value() interface{} { return string(e) }
+
+type option struct {
+	exec string
+}
+
+// composeOptions merges user provided options into the default options
+// and returns the composed option.
+// It also validates the user provided options and returns an error if any of
+// the user provided options fail the validations.
+func composeOptions(opts ...Option) (option, error) {
+	res := option{
+		exec: defaultExecType,
 	}
-}
-
-func (b *Bus) Subscribe(topic string, subscriber IListener) {
-	b.mux.Lock()
-	defer b.mux.Unlock()
-
-	b.subscribers[topic] = append(b.subscribers[topic], subscriber)
-}
-
-func (b *Bus) Unsubscribe(topic string, subscriber IListener) {
-	b.mux.Lock()
-	defer b.mux.Unlock()
-
-	for i, s := range b.subscribers[topic] {
-		if s == subscriber {
-			b.subscribers[topic] = append(b.subscribers[topic][:i], b.subscribers[topic][i+1:]...)
-			break
+	for _, opt := range opts {
+		switch opt := opt.(type) {
+		case execOption:
+			res.exec = opt.Value().(string)
+		default:
+			// ignore unexpected option
 		}
 	}
+	return res, nil
 }
 
-func (b *Bus) Publish(topic string, message string) {
-	b.mux.Lock()
-	defer b.mux.Unlock()
-
-	for _, s := range b.subscribers[topic] {
-		go func(s IListener) {
-			s.Handler(message)
-		}(s)
-	}
-}
-
-func Dispatch(topic string, message string) {
+func DispatchSync(event IEvent, ops ...Option) error {
 	if bus == nil {
 		bus = NewBus()
 	}
-	bus.Publish(topic, message)
+
+	return bus.Publish(event.Name(), event, ops...)
 }
 
-func Register(topic string, subscriber IListener) {
+func Register(event IEvent, subscriber IListener) {
 	if bus == nil {
 		bus = NewBus()
 	}
-	bus.Subscribe(topic, subscriber)
+
+	bus.Subscribe(event.Name(), subscriber)
 }

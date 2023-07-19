@@ -1,24 +1,18 @@
 package routes
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
+	"star/hooks"
 	"star/pkg/bus"
-	"star/pkg/log"
 )
-
-type TListener struct{}
-
-func (l TListener) Handler(event interface{}) {
-	fmt.Printf("event: %v\n", event)
-	log.Info("Handler: ", zap.Any("event", event))
-}
 
 func ApiV1(route *gin.RouterGroup) {
 	handlers := func(c *gin.Context) {
-		bus.Register("test", TListener{})
-		bus.Dispatch("test", "this is test event")
+
+		if err := bus.DispatchSync(hooks.TEvent{}, bus.ParallelExec()); err != nil {
+			return
+		}
+
 		c.JSON(200, gin.H{
 			"message": "api",
 		})

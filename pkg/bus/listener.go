@@ -1,5 +1,9 @@
 package bus
 
+import (
+	"context"
+)
+
 type IListener interface {
-	Handler(event interface{})
+	Handler(ctx context.Context, task interface{}) error
 }

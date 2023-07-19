@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"os"
-	"os/signal"
-	"star/pkg/bus"
 	"star/pkg/log"
 )
 
@@ -39,11 +36,11 @@ func (l TListener) Handler(event interface{}) {
 }
 
 func Handle(command *cobra.Command, strings []string) {
-	bus.Register("test", TListener{})
-	bus.Dispatch("test", "this is test event")
+	//bus.Register("test", TListener{})
+	//bus.Dispatch("test", "this is test event")
 
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
-	log.Info("Shutdown Server ...")
+	//quit := make(chan os.Signal)
+	//signal.Notify(quit, os.Interrupt)
+	//<-quit
+	//log.Info("Shutdown Server ...")
 }
