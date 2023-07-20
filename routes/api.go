@@ -9,9 +9,7 @@ import (
 func ApiV1(route *gin.RouterGroup) {
 	handlers := func(c *gin.Context) {
 
-		if err := bus.DispatchSync(hooks.TEvent{}, bus.ParallelExec()); err != nil {
-			return
-		}
+		bus.Dispatch(hooks.TEvent{}, bus.ParallelExec())
 
 		c.JSON(200, gin.H{
 			"message": "api",

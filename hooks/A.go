@@ -2,12 +2,14 @@ package hooks
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"go.uber.org/zap"
 	"star/pkg/log"
 )
 
-type TEvent struct{}
+type TEvent struct {
+}
 
 func (e TEvent) Name() string {
 	return "TEvent"
@@ -15,7 +17,12 @@ func (e TEvent) Name() string {
 
 type TListener struct{}
 
-func (l TListener) Handler(_ context.Context, event interface{}) error {
+func (l TListener) Handler(_ context.Context, payload []byte) error {
+	var event TEvent
+	if err := json.Unmarshal(payload, &event); err != nil {
+		return err
+	}
+
 	fmt.Printf("event: %#v\n", event)
 	log.Info("Handler: ", zap.Any("event", event))
 	return nil
@@ -23,7 +30,12 @@ func (l TListener) Handler(_ context.Context, event interface{}) error {
 
 type AListener struct{}
 
-func (s AListener) Handler(_ context.Context, event interface{}) error {
+func (s AListener) Handler(_ context.Context, payload []byte) error {
+	var event TEvent
+	if err := json.Unmarshal(payload, &event); err != nil {
+		return err
+	}
+
 	fmt.Printf("event: %#v\n", event)
 	log.Info("Handler: ", zap.Any("event", event))
 	return nil
@@ -31,7 +43,12 @@ func (s AListener) Handler(_ context.Context, event interface{}) error {
 
 type VListener struct{}
 
-func (s VListener) Handler(_ context.Context, event interface{}) error {
+func (s VListener) Handler(_ context.Context, payload []byte) error {
+	var event TEvent
+	if err := json.Unmarshal(payload, &event); err != nil {
+		return err
+	}
+
 	fmt.Printf("event: %#v\n", event)
 	log.Info("Handler: ", zap.Any("event", event))
 	return nil
@@ -39,7 +56,12 @@ func (s VListener) Handler(_ context.Context, event interface{}) error {
 
 type SListener struct{}
 
-func (s SListener) Handler(_ context.Context, event interface{}) error {
+func (s SListener) Handler(_ context.Context, payload []byte) error {
+	var event TEvent
+	if err := json.Unmarshal(payload, &event); err != nil {
+		return err
+	}
+
 	fmt.Printf("event: %#v\n", event)
 	log.Info("Handler: ", zap.Any("event", event))
 	return nil

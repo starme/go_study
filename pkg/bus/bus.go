@@ -2,7 +2,9 @@ package bus
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/hibiken/asynq"
 	"sync"
 )
 
@@ -11,6 +13,7 @@ var bus *Bus
 // Bus is an interface for event listeners.
 type Bus struct {
 	mux         *sync.Mutex
+	client      *asynq.Client
 	subscribers map[string][]IListener
 }
 
@@ -18,6 +21,7 @@ type Bus struct {
 func NewBus() *Bus {
 	return &Bus{
 		mux:         &sync.Mutex{},
+		client:      asynq.NewClient(asynq.RedisClientOpt{Addr: "localhost:6379"}),
 		subscribers: make(map[string][]IListener),
 	}
 }
@@ -63,7 +67,11 @@ func (b *Bus) Publish(topic string, payload interface{}, opts ...Option) error {
 func (b *Bus) publishSerial(topic string, payload interface{}) error {
 	for _, subscriber := range b.subscribers[topic] {
 		fmt.Printf("Publishing event to subscriber. %#v, %#v\n", subscriber, payload)
-		return subscriber.Handler(context.TODO(), payload)
+		marshal, err := json.Marshal(payload)
+		if err != nil {
+			return err
+		}
+		return subscriber.Handler(context.TODO(), marshal)
 	}
 	return nil
 }
@@ -77,7 +85,12 @@ func (b *Bus) publishParallel(topic string, payload interface{}) error {
 			defer wg.Done()
 			fmt.Printf("Publishing event to subscriber. %#v\n", subscriber)
 			//subscriber.Handler(payload)
-			resCh <- subscriber.Handler(context.TODO(), payload)
+			marshal, err := json.Marshal(payload)
+			if err != nil {
+				resCh <- err
+				return
+			}
+			resCh <- subscriber.Handler(context.TODO(), marshal)
 		}(subscriber, resCh)
 	}
 	wg.Wait()

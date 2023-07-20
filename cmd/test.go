@@ -36,11 +36,4 @@ func (l TListener) Handler(event interface{}) {
 }
 
 func Handle(command *cobra.Command, strings []string) {
-	//bus.Register("test", TListener{})
-	//bus.Dispatch("test", "this is test event")
-
-	//quit := make(chan os.Signal)
-	//signal.Notify(quit, os.Interrupt)
-	//<-quit
-	//log.Info("Shutdown Server ...")
 }

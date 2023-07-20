@@ -8,7 +8,7 @@ func broker() *asynq.RedisClientOpt {
 		Addr:         "localhost:6379",
 		Username:     "",
 		Password:     "",
-		DB:           1,
+		DB:           0,
 		DialTimeout:  0,
 		ReadTimeout:  0,
 		WriteTimeout: 0,

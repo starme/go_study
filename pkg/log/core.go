@@ -1,7 +1,7 @@
 package log
 
 import (
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	rotateLogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
@@ -74,11 +74,11 @@ func (h *RotateHandler) syncer() zapcore.WriteSyncer {
 	if h.daily == 0 {
 		h.daily = 1
 	}
-	w, err := rotatelogs.New(
+	w, err := rotateLogs.New(
 		strings.Replace(h.filename, ".log", "-%Y-%m-%d.log", 1),
-		rotatelogs.WithLinkName(h.filename),
-		rotatelogs.WithMaxAge(time.Duration(h.daily)*24*time.Hour),
-		rotatelogs.WithRotationTime(time.Hour*24),
+		rotateLogs.WithLinkName(h.filename),
+		rotateLogs.WithMaxAge(time.Duration(h.daily)*24*time.Hour),
+		rotateLogs.WithRotationTime(time.Hour*24),
 	)
 	if err != nil {
 		panic(err)

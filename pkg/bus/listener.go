@@ -5,5 +5,5 @@ import (
 )
 
 type IListener interface {
-	Handler(ctx context.Context, task interface{}) error
+	Handler(ctx context.Context, payload []byte) error
 }

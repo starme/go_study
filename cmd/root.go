@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/hibiken/asynq"
 	"github.com/spf13/cobra"
 	"os"
@@ -47,28 +48,30 @@ func init() {
 
 	task = queue.TaskServer{
 		HandleFunc: queue.HandleFunc(func(mux *asynq.ServeMux) {
-			//mux.Handle("test", queue.Task.Handler)
-			//for topic, listeners := range providers.Listeners() {
-			//	if len(listeners) == 0 {
-			//		continue
-			//	}
-			//	if len(listeners) == 1 {
-			//		mux.HandleFunc(topic, listeners[0].Handler)
-			//		continue
-			//	}
-			//
-			//	mux.HandleFunc(topic, func(ctx context.Context, t *asynq.Task) error {
-			//		// 按顺序执行
-			//		// TODO: 报错重试处理
-			//		for _, listener := range listeners {
-			//			if err := listener.Handler(ctx, t); err != nil {
-			//				return err
-			//			}
-			//		}
-			//		return nil
-			//	})
-			//
-			//}
+			//mux.Handle("test", que)
+			for topic, listeners := range providers.Listeners() {
+				if len(listeners) == 0 {
+					continue
+				}
+				if len(listeners) == 1 {
+					mux.HandleFunc(topic.Name(), func(ctx context.Context, t *asynq.Task) error {
+						return listeners[0].Handler(ctx, t.Payload())
+					})
+					continue
+				}
+
+				mux.HandleFunc(topic.Name(), func(ctx context.Context, t *asynq.Task) error {
+					// 按顺序执行
+					// TODO: 报错重试处理
+					for _, listener := range listeners {
+						if err := listener.Handler(ctx, t.Payload()); err != nil {
+							return err
+						}
+					}
+					return nil
+				})
+
+			}
 		}),
 	}
 

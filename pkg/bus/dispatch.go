@@ -1,7 +1,10 @@
 package bus
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/hibiken/asynq"
+	"log"
 )
 
 type OptionType int
@@ -30,12 +33,12 @@ type (
 	execOption string
 )
 
-// SerialExec is a option to execute event handler synchronously.
+// SerialExec is an option to execute event handler synchronously.
 func SerialExec() Option {
 	return execOption("serial")
 }
 
-// ParallelExec AsyncExec is a option to execute event handler asynchronously.
+// ParallelExec AsyncExec is an option to execute event handler asynchronously.
 func ParallelExec() Option {
 	return execOption("parallel")
 }
@@ -73,6 +76,26 @@ func DispatchSync(event IEvent, ops ...Option) error {
 	}
 
 	return bus.Publish(event.Name(), event, ops...)
+}
+
+func Dispatch(event IEvent, opts ...Option) {
+	if bus == nil {
+		bus = NewBus()
+	}
+
+	task, err := json.Marshal(event)
+	if err != nil {
+		panic("Stoxx")
+	}
+
+	info, err := bus.client.Enqueue(asynq.NewTask(event.Name(), task))
+	if err != nil {
+		log.Fatalf("could not enqueue task: %v", err)
+	}
+
+	log.Printf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
+
+	//return bus.Publish(event.Name(), event, opts...)
 }
 
 func Register(event IEvent, subscriber IListener) {
