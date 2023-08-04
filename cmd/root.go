@@ -1,12 +1,9 @@
 package cmd
 
 import (
-	"context"
-	"github.com/hibiken/asynq"
 	"github.com/spf13/cobra"
 	"os"
 	"star/pkg/queue"
-	"star/providers"
 )
 
 var task queue.TaskServer
@@ -45,35 +42,4 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	task = queue.TaskServer{
-		HandleFunc: queue.HandleFunc(func(mux *asynq.ServeMux) {
-			//mux.Handle("test", que)
-			for topic, listeners := range providers.Listeners() {
-				if len(listeners) == 0 {
-					continue
-				}
-				if len(listeners) == 1 {
-					mux.HandleFunc(topic.Name(), func(ctx context.Context, t *asynq.Task) error {
-						return listeners[0].Handler(ctx, t.Payload())
-					})
-					continue
-				}
-
-				mux.HandleFunc(topic.Name(), func(ctx context.Context, t *asynq.Task) error {
-					// 按顺序执行
-					// TODO: 报错重试处理
-					for _, listener := range listeners {
-						if err := listener.Handler(ctx, t.Payload()); err != nil {
-							return err
-						}
-					}
-					return nil
-				})
-
-			}
-		}),
-	}
-
-	providers.Register()
 }

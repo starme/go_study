@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"star/internal"
-	"star/internal/provider"
 )
 
 // serverCmd represents the server command
@@ -12,8 +10,8 @@ var serverCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  `test aaa`,
 	Run: func(command *cobra.Command, strings []string) {
-		var app internal.Application
-		app.Run(provider.Route)
+		//var app internal.Application
+		//app.Run(provider.Route)
 	},
 }
 
