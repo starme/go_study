@@ -8,7 +8,7 @@ type Event struct {
 
 func NewEvent(payload interface{}) Event {
 	return Event{
-		Name:    getStructName(payload),
+		Name:    GetStructName(payload),
 		Payload: payload,
 		//options: &Options{},
 	}

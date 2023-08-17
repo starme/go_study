@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"star/pkg/queue"
 )
 
 // serverCmd represents the server command
@@ -26,7 +27,5 @@ func init() {
 }
 
 func Run(command *cobra.Command, strings []string) {
-	if err := task.Start(); err != nil {
-		panic("queue start error")
-	}
+	queue.Start()
 }

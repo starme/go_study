@@ -1,56 +1,48 @@
 package event
 
 import (
-	"context"
-	"errors"
 	"fmt"
+	"star/listeners"
 	"testing"
 )
 
+var bus Bus
+
 // Path: bus.go
 func init() {
-	bus = NewBus()
-	bus.Subscribe("TEvent", TListener{})
-	//bus.Subscribe(AListener{})
-	//bus.Subscribe(VListener{})
+	bus.Register(map[string][]IListener{
+		"TEvent": []IListener{
+			listeners.TListener{},
+			listeners.AListener{},
+			listeners.VListener{},
+		},
+	})
 }
 
-type TEvent struct {
-	Name string
+func TestBus_Register(t *testing.T) {
+	bus.Register(map[string][]IListener{
+		"TEvent": {
+			listeners.TListener{},
+			listeners.AListener{},
+			listeners.VListener{},
+		},
+	})
+
+	fmt.Printf("bus: %#v\n", bus)
 }
 
-type TListener struct{}
-
-func (l TListener) Handle(_ context.Context, payload interface{}) error {
-	event, ok := payload.(TEvent)
-	if !ok {
-		panic("payload is not TEvent")
+func TestBus_Broadcast(t *testing.T) {
+	event := listeners.TEvent{
+		Name: "TEvent",
 	}
-
-	fmt.Printf("event: %#v\n", event)
-	return errors.New("event handler error")
+	err := bus.broadcast("TEvent", event)
+	fmt.Printf("err: %v\n", err)
 }
 
-func TestDispatchSync(t *testing.T) {
-	event := TEvent{Name: "test"}
-	err := bus.dispatchSync("TEvent", event)
-	if err != nil {
-		fmt.Printf("listener error: %s\n", err.Error())
+func TestBus_Dispatch(t *testing.T) {
+	event := listeners.TEvent{
+		Name: "TEvent",
 	}
-}
-
-func TestEvent(t *testing.T) {
-	payload := TEvent{Name: "test"}
-
-	if err := event(payload); err != nil {
-		fmt.Printf("listener error: %s\n", err.Error())
-	}
-}
-
-func TestUntil(t *testing.T) {
-	payload := TEvent{Name: "test"}
-
-	if err := until(payload); err != nil {
-		fmt.Printf("listener error: %s\n", err.Error())
-	}
+	err := bus.dispatch("TEvent", event)
+	fmt.Printf("err: %v\n", err)
 }
